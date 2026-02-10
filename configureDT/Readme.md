@@ -13,8 +13,9 @@ This solution is build using the dependencies from [this project](https://github
 
 ## Installing
 
-- Add the jar [configure-dt-0.0.8.jar](configure-dt-0.0.8.jar) in $ODM_HOME/teamserver/lib folder
-
+- For ODM version before 9: Add the jar [configure-dt-0.0.8.jar](configure-dt-0.0.8.jar) in $ODM_HOME/teamserver/lib folder
+- For ODM version 9.0  : Add the jar [configure-dt-9.0.0.jar](configure-dt-9.0.0.jar) in $ODM_HOME/teamserver/lib folder
+- For ODM version 9.5  : Add the jar [configure-dt-9.5.0.jar](configure-dt-9.5.0.jar) in $ODM_HOME/teamserver/lib folder
 ## Usage
 
 - On Windows, run:
@@ -25,6 +26,9 @@ java -cp "%ODM_HOME%/teamserver/lib/*;%ODM_HOME%/teamserver/lib/eclipse_plugins/
 ```
 java -cp "$ODM_HOME/teamserver/lib/*:$ODM_HOME/teamserver/lib/eclipse_plugins/*" com.ibm.odm.tools.ConfigureDT -username <username> -password <password> -url <url> -dataSource <dataSource> -decisionService "<dsName>" [-branch "<branch name>"] [-overlapCheck true|false] [-gapCheck true|false] [-manualOrdering true|false] [-autoResize true|false] [-unhideColumns true]
 ```
+
+Note: for ODM 9.5 and later the URL must reference  decisioncenter-api instead of  decisioncenter.
+For example : http://localhost:9080/decisioncenter-api
 
 Update all decision tables properties according to option selected in the decision service selected. 
 
