@@ -12,18 +12,16 @@ import ilog.rules.teamserver.brm.IlrBrmPackage;
 import ilog.rules.teamserver.brm.IlrDecisionTable;
 import ilog.rules.teamserver.brm.IlrManagedBranch;
 import ilog.rules.teamserver.brm.IlrRuleProject;
-import ilog.rules.teamserver.client.IlrRemoteSessionFactory;
 import ilog.rules.teamserver.client.internal.BRMServerClient;
 import ilog.rules.teamserver.model.IlrApplicationException;
 import ilog.rules.teamserver.model.IlrCommitableObject;
 import ilog.rules.teamserver.model.IlrConnectException;
 import ilog.rules.teamserver.model.IlrElementDetails;
-import ilog.rules.teamserver.model.IlrObjectNotFoundException;
 import ilog.rules.teamserver.model.IlrSession;
 import ilog.rules.teamserver.model.IlrSessionHelper;
 import ilog.rules.teamserver.model.finders.DataFinder;
 
-public class ConfigureDT extends BRMServerClientLegacy {
+public class ConfigureDT extends BRMServerClient {
 	private final static String DS_ARGNAME = "-decisionService";
 	private final static String BRANCH_ARGNAME = "-branch";
 	private final static String GAPCHECK_ARGNAME = "-gapCheck";
@@ -31,10 +29,6 @@ public class ConfigureDT extends BRMServerClientLegacy {
 	private final static String AUTORESIZE_ARGNAME = "-autoResize";
 	private final static String ORDERING_ARGNAME = "-manualOrdering";
 	private final static String HIDDENCOLUMN_ARGNAME = "-unhideColumns";
-	private String username;
-	private String password;
-	private String url;
-	private String dataSource;
 
 	@Override
 	protected void execute( String[] otherArgs) {
@@ -58,7 +52,7 @@ public class ConfigureDT extends BRMServerClientLegacy {
 				continue;
 			}
 			valueIndex = i + 1;
-			String value = otherArgs[valueIndex];
+			String value = otherArgs.length <= valueIndex ? null: otherArgs[valueIndex];
 			switch (param) {
 			case DS_ARGNAME:
 				dsName = value;
@@ -95,7 +89,6 @@ public class ConfigureDT extends BRMServerClientLegacy {
 		}
 		System.out.println("Configure DT properties in decision service '" + dsName + "'");
 
-		setSession(username, password, url, dataSource);
 		IlrSession dataProvider = null;
 		try {
 			IlrRuleProject dsProject;
@@ -132,18 +125,7 @@ public class ConfigureDT extends BRMServerClientLegacy {
 					}
 				}
 			} finally {
-				if (dataProvider != null) {
-					try {
-						if (isLegacy())
-							dataProvider.endUsage();
-						dataProvider.close();
-						
-					} catch (Exception e) {
-						// ignore errors
-					} finally {
-					dataProvider = null;
-				}
-				}
+				closeSession( dataProvider);
 			}
 
 		} catch (IlrApplicationException e) {
@@ -161,7 +143,6 @@ public class ConfigureDT extends BRMServerClientLegacy {
 		// TODO Auto-generated method stub
 
 		IlrSession dataProvider = getSession();
-		dataProvider.beginUsage();
 		IlrBrmPackage brm = dataProvider.getBrmPackage();
 		Locale locale = dataProvider.getReferenceLocale();
 		DataFinder finder = DataFinder.createDataFinder(brm.getDecisionTable()).setUseDependencies(false);
@@ -175,7 +156,6 @@ public class ConfigureDT extends BRMServerClientLegacy {
 			// if updateDT returns 0 we need to refresh the session
 			if (result == 0){
 				dataProvider = getSession();
-				dataProvider.beginUsage();
 				dataProvider.setWorkingBaseline(ilrBaseline);		
 			}
 		}
@@ -183,13 +163,33 @@ public class ConfigureDT extends BRMServerClientLegacy {
 		for (IlrBaseline subBranch : subBranches) {
 			updateBranch(subBranch, gapCheck, overlapCheck, autoResize, manualOrdering, unhideColumns);
 		}
-
-		dataProvider.endUsage();
-		dataProvider.close();
-		dataProvider = null;
-
 	}
 
+	private IlrSession getSession(){
+
+		if (session != null){
+			try {
+				// check if the session is still available
+				session.getWorkingBaseline() ;			
+			} catch (Exception e) {
+				// session is broke, need to create a new one
+				try {
+					session = super.connect();
+				} catch (IlrConnectException e1) {
+					session = null;
+				}
+			}
+			return session;
+		} else {
+			try {
+				session = super.connect();
+			} catch (IlrConnectException e) {
+				session = null;
+			}
+			return session;
+		}
+
+	}
 	private int updateDT(IlrSession dataProvider, IlrDecisionTable table, String gapCheck, String overlapCheck,
 			String autoResize, String manualOrdering, String unhideColumns, Locale locale) {
 		int result = -1;
@@ -250,12 +250,7 @@ public class ConfigureDT extends BRMServerClientLegacy {
 			// catch all exception from breaking the update
 			e.printStackTrace();
 		}
-		if (result == 0) { // close the temporary data provider open
-			if (isLegacy() )
-				dataProvider.endUsage();
-			dataProvider.close();
-			dataProvider = null;
-		}
+
 		return result;
 
 	}
@@ -318,6 +313,7 @@ public class ConfigureDT extends BRMServerClientLegacy {
 
 	private String booleanValue(String value) {
 
+		if ( value == null ) return "false";
 		return (value.toLowerCase().equals("true") || value.toLowerCase().equals("yes")) ? "true" : "false";
 	}
 
@@ -336,12 +332,6 @@ public class ConfigureDT extends BRMServerClientLegacy {
 		(new ConfigureDT()).doExecute(args);
 	}
 
-	private void setSession(String username, String password, String url, String dataSource) {
-		this.username = username;
-		this.password = password;
-		this.url = url;
-		this.dataSource = dataSource;
-	}
 
 
 }

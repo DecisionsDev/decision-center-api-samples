@@ -1,0 +1,38 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "RenameProject",
+            "request": "launch",
+            "mainClass": "com.ibm.odm.tools.RenameProject",
+            "projectName": "RenameProject"
+        },
+        {
+            "type": "java",
+            "name": "ConfigureDT",
+            "request": "launch",
+            "mainClass": "com.ibm.odm.tools.ConfigureDT",
+            "projectName": "configure-dt",
+            "javaExec": "c:\\tools\\jdk\\semeru21\\bin\\java.exe",
+            "classPaths": [
+                "${workspaceFolder}\\configureDT\\target\\classes",
+                "c:\\tools\\ibm\\odm9.5.0.0\\teamserver\\lib\\*",
+                "c:\\tools\\ibm\\odm9.5.0.0\\teamserver\\lib\\eclipse_plugins\\*"
+            ],
+            "args": ["-username","odmAdmin","-password","odmAdmin","-url","http://localhost:9081/decisioncenter-api","-decisionService","Miniloan Service","-autoResize", "true"]
+
+        }
+    ]
+}
