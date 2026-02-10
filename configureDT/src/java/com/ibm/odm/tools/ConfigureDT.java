@@ -23,7 +23,7 @@ import ilog.rules.teamserver.model.IlrSession;
 import ilog.rules.teamserver.model.IlrSessionHelper;
 import ilog.rules.teamserver.model.finders.DataFinder;
 
-public class ConfigureDT extends BRMServerClient {
+public class ConfigureDT extends BRMServerClientLegacy {
 	private final static String DS_ARGNAME = "-decisionService";
 	private final static String BRANCH_ARGNAME = "-branch";
 	private final static String GAPCHECK_ARGNAME = "-gapCheck";
@@ -37,7 +37,7 @@ public class ConfigureDT extends BRMServerClient {
 	private String dataSource;
 
 	@Override
-	protected void execute(String username, String password, String url, String dataSource, String[] otherArgs) {
+	protected void execute( String[] otherArgs) {
 		String dsName = null;
 		String gapCheck = null;
 		String overlapCheck = null;
@@ -45,7 +45,8 @@ public class ConfigureDT extends BRMServerClient {
 		String manualOrdering = null;
 		String branch = null;
 		String unhideColumns = null;
-		if (username == null || password == null || url == null || otherArgs.length < 2) {
+		if (getUsername() == null || getUrl() == null || otherArgs.length < 2) {
+			System.out.println("Missing confiuration parameters");
 			usage();
 			return;
 		}
@@ -88,6 +89,7 @@ public class ConfigureDT extends BRMServerClient {
 		}
 		if (dsName == null
 				|| (gapCheck == null && overlapCheck == null && autoResize == null && manualOrdering == null)) {
+			System.out.println("Missing mandatory arguments");
 			usage();
 			return;
 		}
@@ -131,8 +133,16 @@ public class ConfigureDT extends BRMServerClient {
 				}
 			} finally {
 				if (dataProvider != null) {
-					dataProvider.close();
+					try {
+						if (isLegacy())
+							dataProvider.endUsage();
+						dataProvider.close();
+						
+					} catch (Exception e) {
+						// ignore errors
+					} finally {
 					dataProvider = null;
+				}
 				}
 			}
 
@@ -151,6 +161,7 @@ public class ConfigureDT extends BRMServerClient {
 		// TODO Auto-generated method stub
 
 		IlrSession dataProvider = getSession();
+		dataProvider.beginUsage();
 		IlrBrmPackage brm = dataProvider.getBrmPackage();
 		Locale locale = dataProvider.getReferenceLocale();
 		DataFinder finder = DataFinder.createDataFinder(brm.getDecisionTable()).setUseDependencies(false);
@@ -162,14 +173,20 @@ public class ConfigureDT extends BRMServerClient {
 			int result = updateDT(dataProvider, (IlrDecisionTable) table, gapCheck, overlapCheck, autoResize,
 					manualOrdering, unhideColumns, locale);
 			// if updateDT returns 0 we need to refresh the session
-			if (result == 0)
+			if (result == 0){
 				dataProvider = getSession();
+				dataProvider.beginUsage();
+				dataProvider.setWorkingBaseline(ilrBaseline);		
+			}
 		}
 		List<IlrBaseline> subBranches = IlrSessionHelper.computeAccessibleDependentBaselines(dataProvider, ilrBaseline);
 		for (IlrBaseline subBranch : subBranches) {
 			updateBranch(subBranch, gapCheck, overlapCheck, autoResize, manualOrdering, unhideColumns);
 		}
+
+		dataProvider.endUsage();
 		dataProvider.close();
+		dataProvider = null;
 
 	}
 
@@ -204,7 +221,7 @@ public class ConfigureDT extends BRMServerClient {
 					definition = IlrSessionHelper.dtControllerToStorableString(dataProvider, cont);
 					result = 0;
 				}
-				if (unhideColumns.equalsIgnoreCase("true")) {
+				if ("true".equalsIgnoreCase(unhideColumns)) {
 					definition = definition.replaceAll(
 							"<Property Name=\"Visible\"><!\\[CDATA\\[false\\]\\]></Property>",
 							"<Property Name=\"Visible\"><![CDATA[true]]></Property>");
@@ -234,7 +251,10 @@ public class ConfigureDT extends BRMServerClient {
 			e.printStackTrace();
 		}
 		if (result == 0) { // close the temporary data provider open
+			if (isLegacy() )
+				dataProvider.endUsage();
 			dataProvider.close();
+			dataProvider = null;
 		}
 		return result;
 
@@ -242,7 +262,6 @@ public class ConfigureDT extends BRMServerClient {
 
 	private boolean updateProperty(IlrDTController controller, String key, String option) {
 		Map<?, ?> props = controller.getDTModel().getProperties();
-
 		if (option == null)
 			return false;
 
@@ -263,8 +282,24 @@ public class ConfigureDT extends BRMServerClient {
 			}
 			break;
 		case "UI.AutoResizeTable":
+			// default is false
+			if (props.get(key) == null ) {
+					controller.getDTModel().setProperty(key, option.equals("true")?true:false);
+					modified = true;
+			} else	{
+				if ( !(Boolean) (props.get(key)) && option.equals("true")) {
+					controller.getDTModel().setProperty(key, true);
+					modified = true;
+				}
+				if ((Boolean) (props.get(key)) && option.equals("false")) {
+					controller.getDTModel().setProperty(key, false);
+					modified = true;
+				}
+			}
+			break;
 		case "Check.Gap":
 		case "Check.Overlap":
+			// default is true
 			if (props.get(key) == null || (Boolean) (props.get(key))) {
 				if (option.equals("false")) {
 					controller.getDTModel().setProperty(key, false);
@@ -308,12 +343,5 @@ public class ConfigureDT extends BRMServerClient {
 		this.dataSource = dataSource;
 	}
 
-	private IlrSession getSession() throws IlrConnectException {
-		IlrSession res;
-		IlrRemoteSessionFactory factory = new IlrRemoteSessionFactory();
-		factory.connect(username, password, url, dataSource);
-		res = factory.getSession();
-		factory = null;
-		return res;
-	}
+
 }

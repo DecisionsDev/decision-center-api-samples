@@ -2,10 +2,12 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.ibm.odm.tools</groupId>
   <artifactId>configure-dt</artifactId>
-  <version>0.0.8</version>
+  <version>0.1.0</version>
  <properties>
-		<odm.version>8.10.5.0</odm.version>
-		<repositoryId>odm-snapshots</repositoryId>
+		<odm.version>9.0.0.1</odm.version>
+		<odm.lib.path>C:/IBM/ODM9001/teamserver/lib</odm.lib.path>
+		<odm.eclipse.path>C:/IBM/ODM9001/teamserver/lib/eclipse_plugins</odm.eclipse.path>
+		<repositoryId>dec-snapshots</repositoryId>
 		<repositoryUrl>https://eu.artifactory.swg-devops.com:443/artifactory/hyc-ai-tribe-l3-team-odm-release-maven-local</repositoryUrl>
 	</properties>
 
@@ -16,12 +18,180 @@
 		</snapshotRepository>
 	</distributionManagement>
 	
- <dependencies><dependency>
-    <groupId>com.ibm.odm</groupId>
-    <artifactId>decisioncenter-dependencies</artifactId>
-    <version>${odm.version}</version>
-    <type>pom</type>
-</dependency>
+ <dependencies>
+    <!-- ODM JRules Core Libraries -->
+    <dependency>
+        <groupId>com.ibm.odm</groupId>
+        <artifactId>jrules-teamserver</artifactId>
+        <version>${odm.version}</version>
+        <scope>system</scope>
+        <systemPath>${odm.lib.path}/jrules-teamserver.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>com.ibm.odm</groupId>
+        <artifactId>jrules-engine</artifactId>
+        <version>${odm.version}</version>
+        <scope>system</scope>
+        <systemPath>${odm.lib.path}/jrules-engine.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>com.ibm.odm</groupId>
+        <artifactId>jrules-res-tools</artifactId>
+        <version>${odm.version}</version>
+        <scope>system</scope>
+        <systemPath>${odm.lib.path}/jrules-res-tools.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>com.ibm.odm</groupId>
+        <artifactId>jrules-ruleartifacts</artifactId>
+        <version>${odm.version}</version>
+        <scope>system</scope>
+        <systemPath>${odm.lib.path}/jrules-ruleartifacts.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>com.ibm.odm</groupId>
+        <artifactId>jrules-synchronization</artifactId>
+        <version>${odm.version}</version>
+        <scope>system</scope>
+        <systemPath>${odm.lib.path}/jrules-synchronization.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>com.ibm.odm</groupId>
+        <artifactId>jrules-validation</artifactId>
+        <version>${odm.version}</version>
+        <scope>system</scope>
+        <systemPath>${odm.lib.path}/jrules-validation.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>com.ibm.odm</groupId>
+        <artifactId>jrules-language</artifactId>
+        <version>${odm.version}</version>
+        <scope>system</scope>
+        <systemPath>${odm.lib.path}/jrules-language.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>com.ibm.odm</groupId>
+        <artifactId>jrules-services</artifactId>
+        <version>${odm.version}</version>
+        <scope>system</scope>
+        <systemPath>${odm.lib.path}/jrules-services.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>com.ibm.odm</groupId>
+        <artifactId>jrules-decisionservice</artifactId>
+        <version>${odm.version}</version>
+        <scope>system</scope>
+        <systemPath>${odm.lib.path}/jrules-decisionservice.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>com.ibm.odm</groupId>
+        <artifactId>jrules-decisionservice-model</artifactId>
+        <version>${odm.version}</version>
+        <scope>system</scope>
+        <systemPath>${odm.lib.path}/jrules-decisionservice-model.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>com.ibm.odm</groupId>
+        <artifactId>jrules-dataaccess-rs4j</artifactId>
+        <version>${odm.version}</version>
+        <scope>system</scope>
+        <systemPath>${odm.lib.path}/jrules-dataaccess-rs4j.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>com.ibm.odm</groupId>
+        <artifactId>jrules-common-rs4jutils</artifactId>
+        <version>${odm.version}</version>
+        <scope>system</scope>
+        <systemPath>${odm.lib.path}/jrules-common-rs4jutils.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>com.ibm.odm</groupId>
+        <artifactId>jrules-model-dataaccess</artifactId>
+        <version>${odm.version}</version>
+        <scope>system</scope>
+        <systemPath>${odm.lib.path}/jrules-model-dataaccess.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>com.ibm.odm</groupId>
+        <artifactId>jrules-model-xml</artifactId>
+        <version>${odm.version}</version>
+        <scope>system</scope>
+        <systemPath>${odm.lib.path}/jrules-model-xml.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>com.ibm.odm</groupId>
+        <artifactId>bdsl-dtx-core</artifactId>
+        <version>${odm.version}</version>
+        <scope>system</scope>
+        <systemPath>${odm.lib.path}/bdsl-dtx-core.jar</systemPath>
+    </dependency>
+    
+    <!-- Eclipse EMF Libraries -->
+    <dependency>
+        <groupId>org.eclipse.emf</groupId>
+        <artifactId>org.eclipse.emf.common</artifactId>
+        <version>2.31.0</version>
+        <scope>system</scope>
+        <systemPath>${odm.eclipse.path}/org.eclipse.emf.common_2.31.0.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>org.eclipse.emf</groupId>
+        <artifactId>org.eclipse.emf.ecore</artifactId>
+        <version>2.37.0</version>
+        <scope>system</scope>
+        <systemPath>${odm.eclipse.path}/org.eclipse.emf.ecore_2.37.0.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>org.eclipse.emf</groupId>
+        <artifactId>org.eclipse.emf.ecore-xmi</artifactId>
+        <version>2.16.0</version>
+        <scope>system</scope>
+        <systemPath>${odm.eclipse.path}/org.eclipse.emf.ecore-xmi_2.16.0.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>org.eclipse.emf</groupId>
+        <artifactId>org.eclipse.emf.edit</artifactId>
+        <version>2.22.0</version>
+        <scope>system</scope>
+        <systemPath>${odm.eclipse.path}/org.eclipse.emf.edit_2.22.0.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>org.eclipse.emf</groupId>
+        <artifactId>org.eclipse.emf.mapping</artifactId>
+        <version>2.12.0</version>
+        <scope>system</scope>
+        <systemPath>${odm.eclipse.path}/org.eclipse.emf.mapping_2.12.0.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>org.eclipse.emf</groupId>
+        <artifactId>org.eclipse.emf.mapping-ecore2ecore</artifactId>
+        <version>2.11.0</version>
+        <scope>system</scope>
+        <systemPath>${odm.eclipse.path}/org.eclipse.emf.mapping-ecore2ecore_2.11.0.jar</systemPath>
+    </dependency>
+    
+    <!-- Supporting Libraries -->
+    <dependency>
+        <groupId>javax.annotation</groupId>
+        <artifactId>javax.annotation-api</artifactId>
+        <version>1.3.2</version>
+        <scope>system</scope>
+        <systemPath>${odm.lib.path}/javax.annotation-api-1.3.2.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>com.ibm</groupId>
+        <artifactId>xalan</artifactId>
+        <version>2.7.3.IBM</version>
+        <scope>system</scope>
+        <systemPath>${odm.lib.path}/xalan-2.7.3.IBM.jar</systemPath>
+    </dependency>
+    <dependency>
+        <groupId>com.ibm</groupId>
+        <artifactId>serializer</artifactId>
+        <version>2.7.3.IBM</version>
+        <scope>system</scope>
+        <systemPath>${odm.lib.path}/serializer-2.7.3.IBM.jar</systemPath>
+    </dependency>
 </dependencies>    
   <build>
    	<sourceDirectory>src/java</sourceDirectory>
@@ -42,10 +212,10 @@
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
+        <version>3.11.0</version>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+          <source>17</source>
+          <target>17</target>
         </configuration>
       </plugin>
             <plugin>
@@ -65,3 +235,5 @@
     </plugins>
   </build>
 </project>
+
+<!-- Made with Bob -->
